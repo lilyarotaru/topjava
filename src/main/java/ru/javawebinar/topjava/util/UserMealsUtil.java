@@ -8,8 +8,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.Month;
 import java.util.*;
+import java.util.function.BiConsumer;
+import java.util.function.BinaryOperator;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.stream.DoubleStream;
+
 
 public class UserMealsUtil {
     public static void main(String[] args) {
@@ -25,8 +30,6 @@ public class UserMealsUtil {
 
         List<UserMealWithExcess> mealsTo = filteredByCycles(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000);
         mealsTo.forEach(System.out::println);
-        System.out.println("______________________________________");
-        System.out.println(filteredByStreams(meals, LocalTime.of(7, 0), LocalTime.of(12, 0), 2000));
     }
 
     public static List<UserMealWithExcess> filteredByCycles(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
@@ -45,12 +48,71 @@ public class UserMealsUtil {
     }
 
     public static List<UserMealWithExcess> filteredByStreams(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+//        Map<LocalDate, Integer> calories = meals.stream().collect(
+//                Collectors.groupingBy(p -> p.getDateTime().toLocalDate(), Collectors.summingInt(UserMeal::getCalories)));
         Map<LocalDate, Integer> calories = meals.stream().collect(
-                Collectors.groupingBy(p -> p.getDateTime().toLocalDate(), Collectors.summingInt(UserMeal::getCalories)));
+                Collectors.toMap(s -> s.getDateTime().toLocalDate(), UserMeal::getCalories, Integer::sum));
         return meals.stream().filter(x -> TimeUtil.isBetweenHalfOpen(x.getDateTime().toLocalTime(), startTime, endTime))
                 .map(x -> new UserMealWithExcess(x.getDateTime(), x.getDescription(), x.getCalories(),
                         (calories.getOrDefault(x.getDateTime().toLocalDate(), 0) > caloriesPerDay))).collect(Collectors.toList());
+    }
 
+    public static List<UserMealWithExcess> filteredByStreams2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+        return meals.stream().collect(new MyCollector(startTime, endTime, caloriesPerDay));
+    }
 
+    public static List<UserMealWithExcess> filteredByCycles2(List<UserMeal> meals, LocalTime startTime, LocalTime endTime, int caloriesPerDay) {
+        //I'm thinking how to do this
+        return null;
     }
 }
+
+    class MyCollector implements Collector<UserMeal, List<UserMeal>, List<UserMealWithExcess>> {
+        private static Map<LocalDate, Integer> myMap = new HashMap<>();
+        private static LocalTime start;
+        private static LocalTime end;
+        private static int caloriesPerDay;
+
+        public MyCollector(LocalTime start, LocalTime end, int caloriesPerDay) {
+            MyCollector.start = start;
+            MyCollector.end = end;
+            MyCollector.caloriesPerDay = caloriesPerDay;
+        }
+
+        @Override
+        public Supplier<List<UserMeal>> supplier() {
+            return ArrayList::new;
+        }
+
+        @Override
+        public BiConsumer<List<UserMeal>, UserMeal> accumulator() {
+            return (list, element) -> {
+                myMap.merge(element.getDateTime().toLocalDate(), element.getCalories(), Integer::sum);
+                if (TimeUtil.isBetweenHalfOpen(element.getDateTime().toLocalTime(), start, end)) {
+                    list.add(element);
+                }
+            };
+        }
+
+        @Override
+        public BinaryOperator<List<UserMeal>> combiner() {
+            return (s1, s2) -> {
+                s1.addAll(s2);
+                return s1;
+            };
+        }
+
+        @Override
+        public Function<List<UserMeal>, List<UserMealWithExcess>> finisher() {
+            return a -> a.stream().map(user -> new UserMealWithExcess(user.getDateTime(), user.getDescription(), user.getCalories(),
+                    myMap.getOrDefault(user.getDateTime().toLocalDate(), 0) > caloriesPerDay)).collect(Collectors.toList());
+        }
+
+        @Override
+        public Set<Characteristics> characteristics() {
+            return EnumSet.of(Characteristics.CONCURRENT);
+        }
+
+    }
+
+
