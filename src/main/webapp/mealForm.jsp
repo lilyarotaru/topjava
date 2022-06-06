@@ -10,23 +10,25 @@
     <title>${param.action.equals("add") ? "Add meal" : "Edit meal"}</title>
 </head>
 <body>
+<h2>${param.action.equals("add") ? "Add meal" : "Edit meal"}</h2>
+<hr/>
 <jsp:useBean id="meal" scope="request" type="ru.javawebinar.topjava.model.Meal"/>
 <form method="POST" action='meals' name="formMeal">
     DateTime: <input
         type="datetime-local" name="dateTime"
-        value="<%=meal.getDateTime()== null ? LocalDateTime.now().withSecond(0).withNano(0) : meal.getDateTime()%>"
+        value="${meal.dateTime}"
         required/>
     <br/>
     Description: <input
         type="text" name="description"
-        value="<%=meal.getDescription()%>" required/>
+        value="${meal.description}" required/>
     <br/>
     Calories : <input
         type="number" name="calories"
-        value="<%=meal.getCalories()%>" min="1" required/>
+        value="${meal.calories}" min="1" required/>
     <br/>
     <input type="number" name="id"
-           value="<%=meal.getId()%>" hidden/>
+           value="${meal.id}" hidden/>
     <input type="submit" value="Save"/>
     <a href="meals">
         <input type="button" value="Cancel">

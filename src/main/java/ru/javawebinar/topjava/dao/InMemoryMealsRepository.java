@@ -35,8 +35,7 @@ public class InMemoryMealsRepository implements CrudRepository<Meal> {
 
     @Override
     public Meal update(Meal meal) {
-        meals.replace(meal.getId(), meal);
-        return meal;
+        return (meals.replace(meal.getId(), meal) == null ? null : meal);
     }
 
     @Override
@@ -45,12 +44,12 @@ public class InMemoryMealsRepository implements CrudRepository<Meal> {
     }
 
     @Override
-    public Meal getById(Integer id) {
+    public Meal getById(int id) {
         return meals.get(id);
     }
 
     @Override
-    public void delete(Integer id) {
+    public void delete(int id) {
         meals.remove(id);
     }
 }

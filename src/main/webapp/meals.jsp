@@ -27,15 +27,15 @@
     <jsp:useBean id="meals" scope="request" type="java.util.List"/>
     <c:forEach items="${meals}" var="meal">
         <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.MealTo"/>
-        <tr style="color: <%=meal.isExcess() ? "red" : "green"%>">
-            <td><%=meal.getDateTime().format((DateTimeFormatter) request.getAttribute("dateFormatter"))%>
+        <tr style="color: ${meal.excess ? "red" : "green"}">
+            <td>${meal.dateTime.format(dateTimeFormatter)}
             </td>
-            <td><%=meal.getDescription()%>
+            <td>${meal.description}
             </td>
-            <td><%=meal.getCalories()%>
+            <td>${meal.calories}
             </td>
-            <td><a href="meals?action=edit&id=<%=meal.getId()%>">Update</a></td>
-            <td><a href="meals?action=delete&id=<%=meal.getId()%>">Delete</a></td>
+            <td><a href="meals?action=edit&id=${meal.id}">Update</a></td>
+            <td><a href="meals?action=delete&id=${meal.id}">Delete</a></td>
         </tr>
     </c:forEach>
     </tbody>
