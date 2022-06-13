@@ -15,7 +15,6 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.Objects;
 
@@ -23,7 +22,6 @@ public class MealServlet extends HttpServlet {
     private static final Logger log = LoggerFactory.getLogger(MealServlet.class);
     private ConfigurableApplicationContext appCtx;
     private MealRestController mealRestController;
-    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ISO_DATE_TIME;
 
     @Override
     public void init() {
@@ -39,10 +37,6 @@ public class MealServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        if (request.getParameter("filter") != null && !request.getParameter("filter").isEmpty()) {
-            filter(request, response);
-            return;
-        }
         String id = request.getParameter("id");
         Meal meal = new Meal(id.isEmpty() ? null : Integer.valueOf(id),
                 LocalDateTime.parse(request.getParameter("dateTime")),
@@ -51,31 +45,33 @@ public class MealServlet extends HttpServlet {
         log.info(meal.isNew() ? "Create {}" : "Update {}", meal);
         if (meal.isNew()) {
             mealRestController.create(meal);
-        } else mealRestController.update(meal, meal.getId());
+        } else {
+            mealRestController.update(meal, meal.getId());
+        }
         response.sendRedirect("meals");
     }
 
-
     protected void filter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        request.setCharacterEncoding("UTF-8");
         String s;
-        LocalDate startDateFilter = !(s = request.getParameter("startDate")).isEmpty() ?
-                LocalDate.parse(s) : LocalDate.MIN;
-        LocalDate endDateFilter = !(s = request.getParameter("endDate")).isEmpty() ?
-                LocalDate.parse(s) : LocalDate.MAX;
-        LocalTime startTime = !(s = request.getParameter("startTime")).isEmpty() ?
-                LocalTime.parse(s) : LocalTime.MIN;
-        LocalTime endTime = !(s = request.getParameter("endTime")).isEmpty() ?
-                LocalTime.parse(s) : LocalTime.MAX;
-        LocalDateTime startDate = startDateFilter.atStartOfDay();
-        LocalDateTime endDate = endDateFilter.atTime(LocalTime.MAX);
+        LocalDate startDate = !(s = request.getParameter("startDate")).isEmpty() ? LocalDate.parse(s) : null;
+        LocalDate endDate = !(s = request.getParameter("endDate")).isEmpty() ? LocalDate.parse(s) : null;
+        LocalTime startTime = !(s = request.getParameter("startTime")).isEmpty() ? LocalTime.parse(s) : null;
+        LocalTime endTime = !(s = request.getParameter("endTime")).isEmpty() ? LocalTime.parse(s) : null;
         request.setAttribute("meals", mealRestController.getAllFilter(startDate, endDate, startTime, endTime));
+        request.setAttribute("startDate", startDate);
+        request.setAttribute("endDate", endDate);
+        request.setAttribute("startTime", startTime);
+        request.setAttribute("endTime", endTime);
         request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
 
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        if (request.getParameter("filter") != null) {
+            filter(request, response);
+            return;
+        }
         String action = request.getParameter("action");
 
         switch (action == null ? "all" : action) {

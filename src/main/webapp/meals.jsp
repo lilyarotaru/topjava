@@ -21,13 +21,13 @@
     <h3><a href="index.html">Home</a></h3>
     <hr/>
     <h2>Meals</h2>
-    <form method="post" action="meals">
+    <form method="get" action="meals">
         <input type="text" name="filter" value="filter" hidden>
-        От даты (включая):<input type="date" name="startDate">
-        До даты (включая): <input type="date" name="endDate">
+        От даты (включая):<input type="date" name="startDate" value="${startDate}">
+        До даты (включая): <input type="date" name="endDate" value="${endDate}">
         <p/>
-        От времени (включая):<input type="time" name="startTime">
-        До времени (исключая): <input type="time" name="endTime">
+        От времени (включая):<input type="time" name="startTime" value="${startTime}">
+        До времени (исключая): <input type="time" name="endTime" value="${endTime}">
         <p/>
         <input type="submit" value="Отфильтровать">
     </form>

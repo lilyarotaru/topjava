@@ -17,22 +17,27 @@ import java.util.stream.Collectors;
 public class MealsUtil {
     public static final int DEFAULT_CALORIES_PER_DAY = 2000;
 
-    public static final List<Meal> meals = Arrays.asList(
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 10, 0), "Завтрак", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 13, 0), "Обед", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 30, 20, 0), "Ужин", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 10, 0), "Завтрак", 1000),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 13, 0), "Обед", 500),
-            new Meal(LocalDateTime.of(2020, Month.JANUARY, 31, 20, 0), "Ужин", 410),
-            new Meal(LocalDateTime.of(2020, Month.MARCH, 20, 10, 0), "Завтрак админа", 470),
-            new Meal(LocalDateTime.of(2020, Month.MARCH, 20, 13, 0), "Обед", 1050),
-            new Meal(LocalDateTime.of(2020, Month.MARCH, 20, 23, 59), "Ужин", 500),
-            new Meal(LocalDateTime.of(2020, Month.MARCH, 21, 0, 0), "Еда на граничное значение", 100),
-            new Meal(LocalDateTime.of(2020, Month.MARCH, 21, 10, 0), "Завтрак", 750),
-            new Meal(LocalDateTime.of(2020, Month.MARCH, 21, 13, 0), "Обед-ланч", 800),
-            new Meal(LocalDateTime.of(2020, Month.MARCH, 21, 20, 0), "Ужин", 410)
+    public static final List<Meal> userMeals = Arrays.asList(
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 30, 10, 0), "Завтрак юзера", 520),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 30, 13, 0), "Обед юзера", 840),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 30, 20, 0), "Ужин юзера", 630),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 31, 0, 0), "Еда на граничное значение", 100),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 31, 10, 0), "Завтрак юзера", 1000),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 31, 13, 0), "Бизнес-ланч юзера", 530),
+            new Meal(LocalDateTime.of(2022, Month.JANUARY, 31, 20, 0), "Ужин юзера", 410)
     );
+
+    public static final List<Meal> adminMeals = Arrays.asList(
+            new Meal(LocalDateTime.of(2022, Month.MAY, 20, 10, 0), "Breakfast admin", 470),
+            new Meal(LocalDateTime.of(2022, Month.MAY, 20, 13, 0), "Lunch admin", 850),
+            new Meal(LocalDateTime.of(2022, Month.MAY, 20, 18, 0), "Dinner admin", 1000),
+            new Meal(LocalDateTime.of(2022, Month.MAY, 20, 23, 59), "Food before midnight admin ", 130),
+            new Meal(LocalDateTime.of(2022, Month.MAY, 21, 0, 0), "Meal for border admin ", 100),
+            new Meal(LocalDateTime.of(2022, Month.MAY, 21, 10, 0), "Brunch admin", 750),
+            new Meal(LocalDateTime.of(2022, Month.MAY, 21, 13, 0), "Lunch admin", 600),
+            new Meal(LocalDateTime.of(2022, Month.MAY, 21, 20, 0), "Ужин admin", 420)
+    );
+
 
     public static List<MealTo> getTos(Collection<Meal> meals, int caloriesPerDay) {
         return filterByPredicate(meals, caloriesPerDay, meal -> true);
