@@ -12,7 +12,7 @@ public class SecurityUtil {
     }
 
     public static void setAuthUserId(int authUserId) {
-        SecurityUtil.authUserId = authUserId == USER_ID ? USER_ID : ADMIN_ID;
+        SecurityUtil.authUserId = authUserId;
     }
 
     public static int authUserCaloriesPerDay() {

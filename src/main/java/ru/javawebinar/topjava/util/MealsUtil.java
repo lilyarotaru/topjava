@@ -38,7 +38,6 @@ public class MealsUtil {
             new Meal(LocalDateTime.of(2022, Month.MAY, 21, 20, 0), "Ужин admin", 420)
     );
 
-
     public static List<MealTo> getTos(Collection<Meal> meals, int caloriesPerDay) {
         return filterByPredicate(meals, caloriesPerDay, meal -> true);
     }

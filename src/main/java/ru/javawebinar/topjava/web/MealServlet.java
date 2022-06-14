@@ -51,30 +51,15 @@ public class MealServlet extends HttpServlet {
         response.sendRedirect("meals");
     }
 
-    protected void filter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        String s;
-        LocalDate startDate = !(s = request.getParameter("startDate")).isEmpty() ? LocalDate.parse(s) : null;
-        LocalDate endDate = !(s = request.getParameter("endDate")).isEmpty() ? LocalDate.parse(s) : null;
-        LocalTime startTime = !(s = request.getParameter("startTime")).isEmpty() ? LocalTime.parse(s) : null;
-        LocalTime endTime = !(s = request.getParameter("endTime")).isEmpty() ? LocalTime.parse(s) : null;
-        request.setAttribute("meals", mealRestController.getAllFilter(startDate, endDate, startTime, endTime));
-        request.setAttribute("startDate", startDate);
-        request.setAttribute("endDate", endDate);
-        request.setAttribute("startTime", startTime);
-        request.setAttribute("endTime", endTime);
-        request.getRequestDispatcher("/meals.jsp").forward(request, response);
-    }
-
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
-        if (request.getParameter("filter") != null) {
-            filter(request, response);
-            return;
-        }
         String action = request.getParameter("action");
 
         switch (action == null ? "all" : action) {
+            case "filter":
+                filter(request, response);
+                break;
             case "delete":
                 int id = getId(request);
                 log.info("Delete id={}", id);
@@ -102,5 +87,16 @@ public class MealServlet extends HttpServlet {
     private int getId(HttpServletRequest request) {
         String paramId = Objects.requireNonNull(request.getParameter("id"));
         return Integer.parseInt(paramId);
+    }
+
+    private void filter(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        log.info("filter meals");
+        String s;
+        LocalDate startDate = (s = request.getParameter("startDate")) != null && !s.isEmpty() ? LocalDate.parse(s) : null;
+        LocalDate endDate = (s = request.getParameter("endDate")) != null && !s.isEmpty() ? LocalDate.parse(s) : null;
+        LocalTime startTime = (s = request.getParameter("startTime")) != null && !s.isEmpty() ? LocalTime.parse(s) : null;
+        LocalTime endTime = (s = request.getParameter("endTime")) != null && !s.isEmpty() ? LocalTime.parse(s) : null;
+        request.setAttribute("meals", mealRestController.getAllFilter(startDate, endDate, startTime, endTime));
+        request.getRequestDispatcher("/meals.jsp").forward(request, response);
     }
 }

@@ -56,9 +56,12 @@ public class MealRestController {
     }
 
     public List<MealTo> getAllFilter(LocalDate startDate, LocalDate endDate, LocalTime startTime, LocalTime endTime) {
+        if (startDate == null && endDate == null && startTime == null && endTime == null) {
+            return getAll();
+        }
         log.info("getAll with filter");
-        startDate = startDate == null ? LocalDate.MIN : startDate;
-        endDate = endDate == null ? LocalDate.MAX : endDate.plusDays(1);
+        if (startDate == null) startDate = LocalDate.MIN;
+        if (endDate == null) endDate = LocalDate.MAX;
         if (startTime == null) startTime = LocalTime.MIN;
         if (endTime == null) endTime = LocalTime.MAX;
         Collection<Meal> meals = service.getAllFilter(authUserId(), startDate, endDate);
