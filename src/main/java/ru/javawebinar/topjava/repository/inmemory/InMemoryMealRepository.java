@@ -45,7 +45,6 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public boolean delete(int id, int userId) {
         log.info("delete {}", id);
-        //return repository.computeIfAbsent(userId, k -> new ConcurrentHashMap<>()).remove(id)!=null;
         Map<Integer, Meal> userMeals = repository.get(userId);
         return userMeals != null && userMeals.remove(id) != null;
     }
@@ -53,7 +52,6 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public Meal get(int id, int userId) {
         log.info("get {}", id);
-        //return repository.computeIfAbsent(userId, k -> new ConcurrentHashMap<>()).get(id);
         Map<Integer, Meal> userMeals = repository.get(userId);
         return userMeals == null ? null : userMeals.get(id);
     }
@@ -67,7 +65,8 @@ public class InMemoryMealRepository implements MealRepository {
     @Override
     public List<Meal> getAllFilter(int userId, LocalDate startDate, LocalDate endDate) {
         log.info("getAllFilter");
-        return filterByPredicate(userId, m -> DateTimeUtil.isBetweenHalfOpen(m.getDate(), startDate, endDate == LocalDate.MAX ? endDate : endDate.plusDays(1)));
+        return filterByPredicate(userId, m -> DateTimeUtil.isBetweenHalfOpen(m.getDate(),
+                startDate, endDate == LocalDate.MAX ? endDate : endDate.plusDays(1)));
     }
 
     private List<Meal> filterByPredicate(int userId, Predicate<Meal> filter) {
