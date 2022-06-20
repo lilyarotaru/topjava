@@ -12,7 +12,6 @@ import org.springframework.test.context.junit4.SpringRunner;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.Assert.assertThrows;
@@ -45,8 +44,12 @@ public class MealServiceTest {
 
     @Test
     public void getNotFound() {
-        assertThrows(NotFoundException.class, () -> service.get(USER_DINNER_ID, ADMIN_ID));
         assertThrows(NotFoundException.class, () -> service.get(NOT_FOUND, USER_ID));
+    }
+
+    @Test
+    public void getStranger() {
+        assertThrows(NotFoundException.class, () -> service.get(USER_BREAKFAST_ID, ADMIN_ID));
     }
 
     @Test
@@ -57,20 +60,25 @@ public class MealServiceTest {
 
     @Test
     public void deleteNotFound() {
-        assertThrows(NotFoundException.class, () -> service.delete(USER_BREAKFAST_ID, ADMIN_ID));
         assertThrows(NotFoundException.class, () -> service.delete(NOT_FOUND, USER_ID));
+    }
+
+    @Test
+    public void deleteStranger() {
+        assertThrows(NotFoundException.class, () -> service.delete(USER_BREAKFAST_ID, ADMIN_ID));
     }
 
     @Test
     public void getBetweenInclusive() {
         List<Meal> meals = service.getBetweenInclusive(firstDay, firstDay, USER_ID);    //2022-06-15 exclusive 2022-06-16 night food
-        assertMatch(meals, user_dinner, user_breakfast);
+        assertMatch(meals, user_pre_midnight, user_dinner, user_lunch, user_breakfast);
     }
 
     @Test
     public void getAll() {
         List<Meal> meals = service.getAll(USER_ID);
-        assertMatch(meals, user_night_meal, user_dinner, user_breakfast);
+        assertMatch(meals, user_dinner_2, user_lunch_2, user_breakfast_2,
+                user_night_meal, user_pre_midnight,user_dinner, user_lunch, user_breakfast);
     }
 
     @Test
@@ -82,13 +90,18 @@ public class MealServiceTest {
 
     @Test
     public void updateNotFound() {
+        assertThrows(NotFoundException.class, () -> service.update(getNonExistent(), ADMIN_ID));
+    }
+
+    @Test
+    public void updateStranger() {
         assertThrows(NotFoundException.class, () -> service.update(getUpdated(), ADMIN_ID));
     }
 
     @Test
     public void duplicateDateTimeCreate() {
         assertThrows(DataAccessException.class, () -> service.create(
-                new Meal(LocalDateTime.of(firstDay, breakfast), "Lunch", 567), USER_ID));
+                new Meal(user_breakfast.getDateTime(), "Lunch", 567), USER_ID));
     }
 
     @Test
