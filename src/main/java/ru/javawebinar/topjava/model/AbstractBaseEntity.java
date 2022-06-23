@@ -5,7 +5,7 @@ public abstract class AbstractBaseEntity {
 
     protected Integer id;
 
-    public AbstractBaseEntity() {
+    protected AbstractBaseEntity() {
     }
 
     protected AbstractBaseEntity(Integer id) {

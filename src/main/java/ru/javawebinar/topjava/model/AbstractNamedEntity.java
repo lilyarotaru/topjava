@@ -4,7 +4,7 @@ public abstract class AbstractNamedEntity extends AbstractBaseEntity {
 
     protected String name;
 
-    public AbstractNamedEntity() {
+    protected AbstractNamedEntity() {
     }
 
     protected AbstractNamedEntity(Integer id, String name) {
