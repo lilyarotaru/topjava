@@ -1,5 +1,6 @@
 package ru.javawebinar.topjava.service;
 
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Stopwatch;
@@ -10,6 +11,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.jdbc.SqlConfig;
 import org.springframework.test.context.junit4.SpringRunner;
+import ru.javawebinar.topjava.LoggingStopwatch;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
@@ -30,8 +32,10 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class MealServiceTest {
 
     @Rule
-    @Autowired
-    public Stopwatch stopwatch;
+    public Stopwatch stopwatch = new LoggingStopwatch(false);
+
+    @ClassRule
+    public static Stopwatch stopwatchAfter = new LoggingStopwatch(true);
 
     @Autowired
     private MealService service;

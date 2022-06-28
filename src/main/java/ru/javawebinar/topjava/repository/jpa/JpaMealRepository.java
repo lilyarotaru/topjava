@@ -27,17 +27,12 @@ public class JpaMealRepository implements MealRepository {
             meal.setUser(ref);
             em.persist(meal);
         } else {
-/*            if (get(meal.getId(), userId) == null) {      // (em.find(Meal.class, meal.getId()).getUser().getId() != userId)
-                                                            // без именнованого запроса, проверка на то, кому принадлежит еда это дополнительный select из базы
+            if (get(meal.getId(), userId) == null) {
                 return null;
             } else {
                 meal.setUser(ref);
                 em.merge(meal);
             }
-*/
-            if (em.createNamedQuery(Meal.UPDATE).setParameter("description", meal.getDescription())
-                    .setParameter("calories", meal.getCalories()).setParameter("dateTime", meal.getDateTime())
-                    .setParameter("id", meal.getId()).setParameter("userId", userId).executeUpdate() == 0) return null;
         }
         return meal;
     }
@@ -52,9 +47,6 @@ public class JpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
-//        Meal meal = em.find(Meal.class, id);                          //какой вариант лучше использовать?
-//        if (meal!=null && meal.getUser().getId()==userId) return meal;
-//        else return null;
         return DataAccessUtils.singleResult(em.createNamedQuery(Meal.GET, Meal.class)
                 .setParameter("id", id).setParameter("userId", userId)
                 .getResultList());
