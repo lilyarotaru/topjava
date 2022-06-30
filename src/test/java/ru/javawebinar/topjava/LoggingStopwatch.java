@@ -12,27 +12,19 @@ import java.util.concurrent.TimeUnit;
 public class LoggingStopwatch extends Stopwatch {
 
     private static final Logger log = LoggerFactory.getLogger(LoggingStopwatch.class);
-    private static final Map<String, Long> map = new HashMap<>();
+    private final Map<String, Long> map = new HashMap<>();
     private final String message = "Test %s took %d ms";
-    private final boolean staticRule;
-
-    public LoggingStopwatch(boolean staticRule) {
-        this.staticRule = staticRule;
-    }
-
-    private void finishedTest() {
-        StringBuilder s = new StringBuilder("Statistics of tests:\n");
-        map.forEach((key, value) -> s.append(key).append(" - ").append(value).append(" ms\n"));
-        log.info(s.toString().trim());
-    }
 
     @Override
     protected void finished(long nanos, Description description) {
-        if (staticRule) {
-            finishedTest();
-        } else {
+        if (description.isTest()) {
             log.info(String.format(message, description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos)));
             map.put(description.getMethodName(), TimeUnit.NANOSECONDS.toMillis(nanos));
+        } else if (description.isSuite()) {
+            StringBuilder s = new StringBuilder("Statistics of tests:\n");
+            map.forEach((key, value) -> s.append(key).append(" - ").append(value).append(" ms\n"));
+            log.info(s.toString().trim());
+//          map.clear();            //если добавлять Rule при помощи autowired, то в синглтоне мапа будет хранить данные и из прошлого теста, при создании через new() нет необходимости
         }
     }
 }

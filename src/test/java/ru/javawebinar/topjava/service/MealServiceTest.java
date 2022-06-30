@@ -32,10 +32,8 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 public class MealServiceTest {
 
     @Rule
-    public Stopwatch stopwatch = new LoggingStopwatch(false);
-
     @ClassRule
-    public static Stopwatch stopwatchAfter = new LoggingStopwatch(true);
+    public static Stopwatch stopwatch = new LoggingStopwatch();
 
     @Autowired
     private MealService service;
