@@ -16,19 +16,17 @@ public interface CrudMealRepository extends JpaRepository<Meal, Integer> {
 
     @Transactional
     @Modifying
-    int deleteByIdAndUserId(int id, int userId);
+    @Query(name = Meal.DELETE)         //because deleteBy in DataJpa at first make get (select) from database
+    int deleteByIdAndUserId(@Param("id") int id, @Param("userId") int userId);
 
-    Meal findByIdAndUserId(int id, int userId);
+    Meal getByIdAndUserId(int id, int userId);
 
     List<Meal> getAllByUserId(int userId, Sort sort);
 
-    List<Meal> getAllByUserIdAndDateTimeGreaterThanEqualAndDateTimeLessThan
-            (int userId, LocalDateTime start, LocalDateTime end, Sort sort);
+    @Query(name = Meal.GET_BETWEEN)
+    List<Meal> getBetweenHalfOpen(@Param("startDateTime") LocalDateTime start,
+                          @Param("endDateTime") LocalDateTime end, @Param("userId") int userId);
 
-//    @Query(name = Meal.GET_BETWEEN)
-//    List<Meal> getBetweenHalfOpen(@Param("startDateTime") LocalDateTime start,
-//                          @Param("endDateTime") LocalDateTime end, @Param("userId") int userId);
-
-    @Query("SELECT m FROM Meal m LEFT JOIN FETCH m.user u WHERE m.id=:id AND m.user.id=:userId")
+    @Query("SELECT m FROM Meal m INNER JOIN FETCH m.user u WHERE m.id=:id AND m.user.id=:userId")
     Meal getWithUser(@Param("id")int id, @Param("userId") int userId);
 }

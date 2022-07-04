@@ -48,18 +48,4 @@ public abstract class AbstractServiceTest {
             }
         }
     };
-
-    abstract void delete();
-
-    abstract void deleteNotFound();
-
-    abstract void create();
-
-    abstract void update();
-
-    abstract void get();
-
-    abstract void getNotFound();
-
-    abstract void getAll();
 }
