@@ -12,7 +12,7 @@ import java.util.List;
 @Repository
 public class DataJpaMealRepository implements MealRepository {
 
-    private static final Sort SORT_DATE_TIME = Sort.by(Sort.Direction.DESC, "dateTime");
+//    private static final Sort SORT_DATE_TIME = Sort.by(Sort.Direction.DESC, "dateTime");
 
     private final CrudMealRepository crudRepository;
     private final CrudUserRepository crudUserRepository;
@@ -26,7 +26,7 @@ public class DataJpaMealRepository implements MealRepository {
     @Transactional
     public Meal save(Meal meal, int userId) {
         meal.setUser(crudUserRepository.getReferenceById(userId));
-        if (!meal.isNew() && crudRepository.getByIdAndUserId(meal.id(), userId) == null) return null;
+        if (!meal.isNew() && get(meal.id(), userId) == null) return null;
         return crudRepository.save(meal);
     }
 
@@ -37,12 +37,14 @@ public class DataJpaMealRepository implements MealRepository {
 
     @Override
     public Meal get(int id, int userId) {
+//        return crudRepository.getByIdAndUser(id, crudUserRepository.getReferenceById(userId));
         return crudRepository.getByIdAndUserId(id, userId);
     }
 
     @Override
     public List<Meal> getAll(int userId) {
-        return crudRepository.getAllByUserId(userId, SORT_DATE_TIME);
+//        return crudRepository.getAllByUser(crudUserRepository.getReferenceById(userId), SORT_DATE_TIME);
+        return crudRepository.getAllByUserId(userId);
     }
 
     @Override
