@@ -59,7 +59,7 @@ public class User extends AbstractNamedEntity {
     @ElementCollection(fetch = FetchType.EAGER)
 //    @Fetch(FetchMode.SUBSELECT)
     @BatchSize(size = 200)
-    @JoinColumn(name = "user_id") //https://stackoverflow.com/a/62848296/548473
+    @JoinColumn(name = "id") //https://stackoverflow.com/a/62848296/548473
     @OnDelete(action = OnDeleteAction.CASCADE)
     private Set<Role> roles;
 
