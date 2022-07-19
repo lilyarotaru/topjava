@@ -137,13 +137,6 @@ public class User extends AbstractNamedEntity {
         this.roles = CollectionUtils.isEmpty(roles) ? EnumSet.noneOf(Role.class) : EnumSet.copyOf(roles);
     }
 
-    //need for BeanPropertyRowMapper cause it finds fields by comparing name (field roles != "role" column) or look for setter with column name
-    public void setRole(Role role){
-        if (this.roles == null){
-            setRoles(role==null? Collections.emptyList(): List.of(role));
-        } else this.roles.add(role);
-    }
-
     public String getPassword() {
         return password;
     }

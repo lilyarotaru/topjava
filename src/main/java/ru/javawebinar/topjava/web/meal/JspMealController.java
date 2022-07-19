@@ -1,7 +1,5 @@
 package ru.javawebinar.topjava.web.meal;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -22,10 +20,9 @@ import java.util.Objects;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalDate;
 import static ru.javawebinar.topjava.util.DateTimeUtil.parseLocalTime;
 
-@Controller()
+@Controller
 @RequestMapping("/meals")
 public class JspMealController extends MealController {
-    private static final Logger log = LoggerFactory.getLogger(JspMealController.class);
 
     public JspMealController(MealService service) {
         super(service);
@@ -71,7 +68,6 @@ public class JspMealController extends MealController {
         delete(getId(request));
         return "redirect:/meals";
     }
-
 
     @GetMapping("/filter")
     public String filter(HttpServletRequest request) {

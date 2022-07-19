@@ -1,6 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ taglib prefix="spring" uri="http://www.springframework.org/tags" %>
 
 <html>
@@ -9,12 +8,9 @@
 <jsp:include page="fragments/bodyHeader.jsp"/>
 
 <section>
-    <c:set var="url" value="${requestScope['javax.servlet.forward.request_uri']}"/>
-    <spring:message code="meal.add" var="create"/>
-    <spring:message code="meal.updateMeal" var="update"/>
-    <h3>${ url.toString().endsWith("create") ? create : update}</h3>
+    <h3><spring:message code="meal.${meal.id==null? 'add' : 'updateMeal'}"></spring:message></h3>
     <jsp:useBean id="meal" type="ru.javawebinar.topjava.model.Meal" scope="request"/>
-    <form method="post" action="${pageContext.request.contextPath}/meals">
+    <form method="post" action="meals">
         <input type="hidden" name="id" value="${meal.id}">
         <dl>
             <dt><spring:message code="meal.date"/>:</dt>
