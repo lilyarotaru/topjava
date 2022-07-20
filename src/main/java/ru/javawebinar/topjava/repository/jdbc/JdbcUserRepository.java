@@ -33,17 +33,17 @@ public class JdbcUserRepository implements UserRepository {
                 int id = rs.getInt("id");
                 User user = map.computeIfAbsent(id, key -> {
                     try {
-                        return ROW_MAPPER.mapRow(rs, rs.getRow());      //don't allow to use lambda expression even "throw SQLException" in method signature
+                        User mappedUser = ROW_MAPPER.mapRow(rs, rs.getRow());
+                        mappedUser.setRoles(Collections.emptyList());
+                        return mappedUser;
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
                     }
                 });
-                //without #setRole() in User.class ROW_MAPPER don't maprow the field "roles"
                 String roleValue = rs.getString("role");
-                Role role = roleValue == null ? null : Role.valueOf(rs.getString("role"));
-                if (user.getRoles() == null) {
-                    user.setRoles(role == null ? Collections.emptyList() : List.of(role));
-                } else user.getRoles().add(role);
+                if (roleValue != null) {
+                    user.getRoles().add(Role.valueOf(roleValue));
+                }
             }
             return new ArrayList<>(map.values());
         }
@@ -84,19 +84,21 @@ public class JdbcUserRepository implements UserRepository {
             }
             jdbcTemplate.update("DELETE FROM user_roles WHERE user_id = ?", user.id());
         }
-        List<Role> roles = new ArrayList<>(user.getRoles());
-        jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role)  values (? ,?)", new BatchPreparedStatementSetter() {
-            @Override
-            public void setValues(PreparedStatement ps, int i) throws SQLException {
-                ps.setInt(1, user.id());
-                ps.setString(2, roles.get(i).name());
-            }
+        if (user.getRoles() != null) {
+            List<Role> roles = new ArrayList<>(user.getRoles());
+            jdbcTemplate.batchUpdate("INSERT INTO user_roles (user_id, role)  values (? ,?)", new BatchPreparedStatementSetter() {
+                @Override
+                public void setValues(PreparedStatement ps, int i) throws SQLException {
+                    ps.setInt(1, user.id());
+                    ps.setString(2, roles.get(i).name());
+                }
 
-            @Override
-            public int getBatchSize() {
-                return roles.size();
-            }
-        });
+                @Override
+                public int getBatchSize() {
+                    return roles.size();
+                }
+            });
+        }
         return user;
     }
 

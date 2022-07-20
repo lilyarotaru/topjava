@@ -1,9 +1,7 @@
 package ru.javawebinar.topjava.service;
 
-import org.junit.Before;
 import org.junit.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.CacheManager;
 import org.springframework.dao.DataAccessException;
 import org.springframework.test.context.ContextConfiguration;
 import ru.javawebinar.topjava.model.Role;
@@ -24,14 +22,6 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     @Autowired
     protected UserService service;
 
-    @Autowired
-    private CacheManager cacheManager;
-
-    @Before
-    public void setup() {
-        cacheManager.getCache("users").clear();
-    }
-
     @Test
     public void create() {
         User created = service.create(getNew());
@@ -40,6 +30,16 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
         newUser.setId(newId);
         USER_MATCHER.assertMatch(created, newUser);
         USER_MATCHER.assertMatch(service.get(newId), newUser);
+    }
+
+    @Test
+    public void createWithoutRoles() {
+        User created = service.create(getNewGuest());
+        int newId = created.id();
+        User newGuest = getNewGuest();
+        newGuest.setId(newId);
+        USER_MATCHER.assertMatch(created, newGuest);
+        USER_MATCHER.assertMatch(service.get(newId), newGuest);
     }
 
     @Test
