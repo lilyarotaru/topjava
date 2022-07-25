@@ -5,27 +5,25 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import ru.javawebinar.topjava.MealToTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
 import ru.javawebinar.topjava.to.MealTo;
-import ru.javawebinar.topjava.util.MealsUtil;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
 
-import java.io.UnsupportedEncodingException;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertIterableEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.MealTestData.*;
+import static ru.javawebinar.topjava.MealToTestData.*;
 import static ru.javawebinar.topjava.UserTestData.USER_ID;
-import static ru.javawebinar.topjava.web.SecurityUtil.authUserCaloriesPerDay;
 
 class MealRestControllerTest extends AbstractControllerTest {
 
@@ -53,8 +51,8 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andDo(print())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE));
-        List<MealTo> actual = readMealToFromJson(action);
-        assertIterableEquals(MealsUtil.getTos(meals, authUserCaloriesPerDay()), actual);
+        List<MealTo> actual = MealToTestData.readMealToFromJson(action);
+        MEAL_TO_MATCHER.assertEquals(actual, mealsTo);
     }
 
     @Test
@@ -99,13 +97,18 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
                 .andDo(print());
-        List<MealTo> actual = readMealToFromJson(action);
-        List<MealTo> expected = MealsUtil.getFilteredTos(mealService.getBetweenInclusive(startDate, endDate, USER_ID),
-                authUserCaloriesPerDay(), startTime, endTime);
-        assertIterableEquals(expected, actual);
+        List<MealTo> actual = MealToTestData.readMealToFromJson(action);
+        MEAL_TO_MATCHER.assertEquals(actual, List.of(mealTo2, mealTo1));
     }
 
-    private List<MealTo> readMealToFromJson(ResultActions action) throws UnsupportedEncodingException {
-        return JsonUtil.readValues(action.andReturn().getResponse().getContentAsString(), MealTo.class);
+    @Test
+    void getBetweenWithNullParams() throws Exception {
+        ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + "filter")
+                .param("startTime", ""))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
+                .andDo(print());
+        List<MealTo> actual = MealToTestData.readMealToFromJson(action);
+        MEAL_TO_MATCHER.assertEquals(actual, mealsTo);
     }
 }

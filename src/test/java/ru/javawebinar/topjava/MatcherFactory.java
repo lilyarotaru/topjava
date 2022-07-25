@@ -60,6 +60,10 @@ public class MatcherFactory {
             return JsonUtil.readValue(getContent(action.andReturn()), clazz);
         }
 
+        public void assertEquals(Iterable<T> actual, Iterable<T> expected) {
+            assertThat(actual).isEqualTo(expected);
+        }
+
         private static String getContent(MvcResult result) throws UnsupportedEncodingException {
             return result.getResponse().getContentAsString();
         }

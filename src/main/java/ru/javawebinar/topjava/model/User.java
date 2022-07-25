@@ -148,12 +148,6 @@ public class User extends AbstractNamedEntity {
         return meals;
     }
 
-    public void setMeals(Collection<Meal> meals) {
-        if (this.meals == null) {
-            this.meals = new ArrayList<>(meals);
-        } else this.meals.addAll(meals);
-    }
-
     @Override
     public String toString() {
         return "User{" +
