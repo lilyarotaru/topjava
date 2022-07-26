@@ -18,20 +18,22 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class MatcherFactory {
     public static <T> Matcher<T> usingIgnoringFieldsComparator(Class<T> clazz, String... fieldsToIgnore) {
-        return new Matcher<>(clazz, fieldsToIgnore);
+        return new MatcherByFields<>(clazz, fieldsToIgnore);
+    }
+
+    public static <T> Matcher<T> usingEquals(Class<T> clazz){
+        return new Matcher<>(clazz);
     }
 
     public static class Matcher<T> {
         private final Class<T> clazz;
-        private final String[] fieldsToIgnore;
 
-        private Matcher(Class<T> clazz, String... fieldsToIgnore) {
+        private Matcher(Class<T> clazz) {
             this.clazz = clazz;
-            this.fieldsToIgnore = fieldsToIgnore;
         }
 
         public void assertMatch(T actual, T expected) {
-            assertThat(actual).usingRecursiveComparison().ignoringFields(fieldsToIgnore).isEqualTo(expected);
+            assertThat(actual).isEqualTo(expected);
         }
 
         @SafeVarargs
@@ -40,7 +42,7 @@ public class MatcherFactory {
         }
 
         public void assertMatch(Iterable<T> actual, Iterable<T> expected) {
-            assertThat(actual).usingRecursiveFieldByFieldElementComparatorIgnoringFields(fieldsToIgnore).isEqualTo(expected);
+            assertThat(actual).isEqualTo(expected);
         }
 
         public ResultMatcher contentJson(T expected) {
@@ -60,12 +62,28 @@ public class MatcherFactory {
             return JsonUtil.readValue(getContent(action.andReturn()), clazz);
         }
 
-        public void assertEquals(Iterable<T> actual, Iterable<T> expected) {
-            assertThat(actual).isEqualTo(expected);
-        }
-
         private static String getContent(MvcResult result) throws UnsupportedEncodingException {
             return result.getResponse().getContentAsString();
+        }
+    }
+
+    public static class MatcherByFields<T> extends Matcher<T> {
+
+        private final String[] fieldsToIgnore;
+
+        private MatcherByFields(Class<T> clazz, String... fieldsToIgnore) {
+            super(clazz);
+            this.fieldsToIgnore = fieldsToIgnore;
+        }
+
+        @Override
+        public void assertMatch(T actual, T expected) {
+            assertThat(actual).usingRecursiveComparison().ignoringFields(fieldsToIgnore).isEqualTo(expected);
+        }
+
+        @Override
+        public void assertMatch(Iterable<T> actual, Iterable<T> expected) {
+            assertThat(actual).usingRecursiveFieldByFieldElementComparatorIgnoringFields(fieldsToIgnore).isEqualTo(expected);
         }
     }
 }

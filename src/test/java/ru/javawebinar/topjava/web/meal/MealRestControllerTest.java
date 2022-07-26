@@ -5,10 +5,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.javawebinar.topjava.MealToTestData;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
-import ru.javawebinar.topjava.to.MealTo;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 import ru.javawebinar.topjava.web.json.JsonUtil;
@@ -47,12 +45,11 @@ class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void getAll() throws Exception {
-        ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL))
+        perform(MockMvcRequestBuilders.get(REST_URL))
                 .andExpect(status().isOk())
                 .andDo(print())
-                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE));
-        List<MealTo> actual = MealToTestData.readMealToFromJson(action);
-        MEAL_TO_MATCHER.assertEquals(actual, mealsTo);
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
+                .andExpect(MEAL_TO_MATCHER.contentJson(mealsTo));
     }
 
     @Test
@@ -89,26 +86,24 @@ class MealRestControllerTest extends AbstractControllerTest {
 
     @Test
     void getBetween() throws Exception {
-        ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + "filter")
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter")
                 .param("startDate", startDate.toString())
                 .param("endDate", endDate.toString())
                 .param("startTime", startTime.toString())
                 .param("endTime", endTime.toString()))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(print());
-        List<MealTo> actual = MealToTestData.readMealToFromJson(action);
-        MEAL_TO_MATCHER.assertEquals(actual, List.of(mealTo2, mealTo1));
+                .andDo(print())
+                .andExpect(MEAL_TO_MATCHER.contentJson(List.of(mealTo2, mealTo1)));
     }
 
     @Test
     void getBetweenWithNullParams() throws Exception {
-        ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + "filter")
+        perform(MockMvcRequestBuilders.get(REST_URL + "filter")
                 .param("startTime", ""))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON_VALUE))
-                .andDo(print());
-        List<MealTo> actual = MealToTestData.readMealToFromJson(action);
-        MEAL_TO_MATCHER.assertEquals(actual, mealsTo);
+                .andDo(print())
+                .andExpect(MEAL_TO_MATCHER.contentJson(mealsTo));
     }
 }

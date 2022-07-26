@@ -97,7 +97,7 @@ class AdminRestControllerTest extends AbstractControllerTest {
 
     @Test
     void getWithMeals() throws Exception {
-        Assumptions.assumeTrue(environment.acceptsProfiles(Profiles.of(ru.javawebinar.topjava.Profiles.DATAJPA)));
+        checkRepositoryImplementation();
         ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + USER_ID + "/with-meals"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
@@ -108,12 +108,16 @@ class AdminRestControllerTest extends AbstractControllerTest {
 
     @Test
     void getWithNoMeals() throws Exception {
-        Assumptions.assumeTrue(environment.acceptsProfiles(Profiles.of(ru.javawebinar.topjava.Profiles.DATAJPA)));
+        checkRepositoryImplementation();
         ResultActions action = perform(MockMvcRequestBuilders.get(REST_URL + GUEST_ID + "/with-meals"))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON));
         User actual = USER_MATCHER.readFromJson(action);
         USER_MATCHER.assertMatch(actual, guest);
         MEAL_MATCHER.assertMatch(actual.getMeals(), Collections.emptyList());
+    }
+
+    private void checkRepositoryImplementation() {
+        Assumptions.assumeTrue(environment.acceptsProfiles(Profiles.of(ru.javawebinar.topjava.Profiles.DATAJPA)));
     }
 }
