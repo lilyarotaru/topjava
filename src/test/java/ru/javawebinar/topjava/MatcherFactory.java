@@ -21,14 +21,47 @@ public class MatcherFactory {
         return new MatcherByFields<>(clazz, fieldsToIgnore);
     }
 
-    public static <T> Matcher<T> usingEquals(Class<T> clazz){
-        return new Matcher<>(clazz);
+    public static <T> Matcher<T> usingEquals(Class<T> clazz) {
+        return new MatcherByEquals<>(clazz);
     }
 
-    public static class Matcher<T> {
+    public interface Matcher<T> {
+
+        void assertMatch(T actual, T expected);
+
+        void assertMatch(Iterable<T> actual, Iterable<T> expected);
+
+        Class<T> getClazz();
+
+        default void assertMatch(Iterable<T> actual, T... expected) {
+            assertMatch(actual, List.of(expected));
+        }
+
+        default ResultMatcher contentJson(T expected) {
+            return result -> assertMatch(JsonUtil.readValue(getContent(result), getClazz()), expected);
+        }
+
+        default ResultMatcher contentJson(T... expected) {
+            return contentJson(List.of(expected));
+        }
+
+        default ResultMatcher contentJson(Iterable<T> expected) {
+            return result -> assertMatch(JsonUtil.readValues(getContent(result), getClazz()), expected);
+        }
+
+        default T readFromJson(ResultActions action) throws UnsupportedEncodingException {
+            return JsonUtil.readValue(getContent(action.andReturn()), getClazz());
+        }
+
+        private static String getContent(MvcResult result) throws UnsupportedEncodingException {
+            return result.getResponse().getContentAsString();
+        }
+    }
+
+    public static class MatcherByEquals<T> implements Matcher<T> {
         private final Class<T> clazz;
 
-        private Matcher(Class<T> clazz) {
+        private MatcherByEquals(Class<T> clazz) {
             this.clazz = clazz;
         }
 
@@ -45,34 +78,18 @@ public class MatcherFactory {
             assertThat(actual).isEqualTo(expected);
         }
 
-        public ResultMatcher contentJson(T expected) {
-            return result -> assertMatch(JsonUtil.readValue(getContent(result), clazz), expected);
-        }
-
-        @SafeVarargs
-        public final ResultMatcher contentJson(T... expected) {
-            return contentJson(List.of(expected));
-        }
-
-        public ResultMatcher contentJson(Iterable<T> expected) {
-            return result -> assertMatch(JsonUtil.readValues(getContent(result), clazz), expected);
-        }
-
-        public T readFromJson(ResultActions action) throws UnsupportedEncodingException {
-            return JsonUtil.readValue(getContent(action.andReturn()), clazz);
-        }
-
-        private static String getContent(MvcResult result) throws UnsupportedEncodingException {
-            return result.getResponse().getContentAsString();
+        @Override
+        public Class<T> getClazz() {
+            return clazz;
         }
     }
 
-    public static class MatcherByFields<T> extends Matcher<T> {
-
+    public static class MatcherByFields<T> implements Matcher<T> {
+        private final Class<T> clazz;
         private final String[] fieldsToIgnore;
 
         private MatcherByFields(Class<T> clazz, String... fieldsToIgnore) {
-            super(clazz);
+            this.clazz = clazz;
             this.fieldsToIgnore = fieldsToIgnore;
         }
 
@@ -84,6 +101,11 @@ public class MatcherFactory {
         @Override
         public void assertMatch(Iterable<T> actual, Iterable<T> expected) {
             assertThat(actual).usingRecursiveFieldByFieldElementComparatorIgnoringFields(fieldsToIgnore).isEqualTo(expected);
+        }
+
+        @Override
+        public Class<T> getClazz() {
+            return clazz;
         }
     }
 }
