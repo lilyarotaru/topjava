@@ -1,10 +1,7 @@
 package ru.javawebinar.topjava.web.user;
 
-import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.env.Environment;
-import org.springframework.core.env.Profiles;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
@@ -31,9 +28,6 @@ class AdminRestControllerTest extends AbstractControllerTest {
 
     @Autowired
     private UserService userService;
-
-    @Autowired
-    private Environment environment;
 
     @Test
     void get() throws Exception {
@@ -115,9 +109,5 @@ class AdminRestControllerTest extends AbstractControllerTest {
         User actual = USER_MATCHER.readFromJson(action);
         USER_MATCHER.assertMatch(actual, guest);
         MEAL_MATCHER.assertMatch(actual.getMeals(), Collections.emptyList());
-    }
-
-    private void checkRepositoryImplementation() {
-        Assumptions.assumeTrue(environment.acceptsProfiles(Profiles.of(ru.javawebinar.topjava.Profiles.DATAJPA)));
     }
 }
