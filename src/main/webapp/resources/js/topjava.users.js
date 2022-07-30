@@ -45,3 +45,18 @@ $(function () {
         })
     );
 });
+
+function enable(checked){
+    if (!checked) {
+        ctx.datatableApi.closest('tr').attr("disabled", true); //присвоить строке столбца свойство disabled (в css стиле)
+    } else {
+        ctx.datatableApi.closest('tr').attr("disabled", false);
+    }
+
+    let number = ctx.datatableApi.closest('tr').attr("id");      //как захватить id строки???
+    $.ajax({
+        url: "rest/"+userAjaxUrl+"enable",
+        type: "POST",
+        data: {id:number, enabled:checked}
+    });
+}
