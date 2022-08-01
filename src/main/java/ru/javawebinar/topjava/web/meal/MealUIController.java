@@ -29,7 +29,6 @@ public class MealUIController extends AbstractMealController {
         return super.getAll();
     }
 
-
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void create(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime,

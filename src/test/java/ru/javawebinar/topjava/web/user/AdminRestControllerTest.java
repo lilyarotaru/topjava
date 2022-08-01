@@ -98,11 +98,11 @@ class AdminRestControllerTest extends AbstractControllerTest {
     void enable() throws Exception {
         User guestToDisable = new User(guest);
         guestToDisable.setEnabled(false);
-        perform(MockMvcRequestBuilders.post(REST_URL+"enable")
-                .param("id", String.valueOf(GUEST_ID))
-                .param("enabled", String.valueOf(guestToDisable.isEnabled())))
-                .andExpect(status().isNoContent())
-                .andDo(print());
+        perform(MockMvcRequestBuilders.patch(REST_URL + GUEST_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(String.valueOf(guestToDisable.isEnabled())))
+                .andDo(print())
+                .andExpect(status().isNoContent());
         USER_MATCHER.assertMatch(userService.get(GUEST_ID), guestToDisable);
     }
 }

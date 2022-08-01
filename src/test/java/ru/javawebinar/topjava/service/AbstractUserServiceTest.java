@@ -87,7 +87,7 @@ public abstract class AbstractUserServiceTest extends AbstractServiceTest {
     }
 
     @Test
-    void enable(){
+    void enable() {
         User guestToDisable = new User(guest);
         guestToDisable.setEnabled(false);
         service.enable(GUEST_ID, false);

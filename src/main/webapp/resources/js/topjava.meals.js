@@ -48,6 +48,6 @@ function filter() {
         type: "GET",
         data: form.serialize()
     }).done(function (data) {
-        ctx.datatableApi.clear().rows.add(data).draw();
+       fillTableWithData(data);
     });
 }

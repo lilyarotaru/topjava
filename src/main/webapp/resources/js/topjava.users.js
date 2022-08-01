@@ -46,17 +46,26 @@ $(function () {
     );
 });
 
-function enable(checked){
-    if (!checked) {
-        ctx.datatableApi.closest('tr').attr("disabled", true); //присвоить строке столбца свойство disabled (в css стиле)
-    } else {
-        ctx.datatableApi.closest('tr').attr("disabled", false);
-    }
-
-    let number = ctx.datatableApi.closest('tr').attr("id");      //как захватить id строки???
+function enable(checked, element) {
+    let row = element.closest('tr');
+    let id = row.getAttribute("id");
     $.ajax({
-        url: "rest/"+userAjaxUrl+"enable",
-        type: "POST",
-        data: {id:number, enabled:checked}
+        url: userAjaxUrl + id,
+        type: "PATCH",
+        contentType: "application/json",
+        data: JSON.stringify(checked)
+    }).done(function () {
+        row.disabled = checked;
+        successNoty(enableText(checked));
+    }).fail(function () {
+        element.checked = !checked;
     });
+}
+
+function enableText(checked) {
+    if (checked) {
+        return "Запись активирована";
+    } else {
+        return "Запись деактивирована";
+    }
 }
