@@ -40,7 +40,6 @@ $(function () {
     );
 });
 
-
 function filter() {
     let form = $('#filterForm');
     $.ajax({
@@ -50,4 +49,9 @@ function filter() {
     }).done(function (data) {
        fillTableWithData(data);
     });
+}
+
+function cleanForm(){
+    $('#filterForm').trigger('reset');
+    updateTable();
 }

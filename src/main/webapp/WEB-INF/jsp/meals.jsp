@@ -32,7 +32,7 @@
                 </div>
             </div>
             <br>
-            <button class="btn btn-danger btn-sm" type="reset" onclick="updateTable()"><spring:message
+            <button class="btn btn-danger btn-sm" type="reset" onclick="cleanForm()"><spring:message
                     code="common.cancel"/></button>
             <button class="btn btn-success btn-sm" type="button" onclick="filter()"><spring:message
                     code="meal.filter"/></button>

@@ -33,12 +33,24 @@ function deleteRow(id) {
 }
 
 function updateTable() {
+    if (ctx.ajaxUrl.startsWith("profile")) {
+        // check even if 1 input in form is not empty () - call filter() and return;
+        let filterDataExist = false;
+        $('#filterForm :input').each(function () {
+            if ($(this).val() !== "") {
+                filterDataExist = true;
+                filter();
+                return false;           //to break each iteration
+            }
+        });
+        if (filterDataExist) return;    // if we send filter-request, break this function
+    }
     $.get(ctx.ajaxUrl, function (data) {
         fillTableWithData(data);
     });
 }
 
-function fillTableWithData(data){
+function fillTableWithData(data) {
     ctx.datatableApi.clear().rows.add(data).draw();
 }
 

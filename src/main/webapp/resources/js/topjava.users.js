@@ -46,7 +46,8 @@ $(function () {
     );
 });
 
-function enable(checked, element) {
+function enable(element) {
+    let checked = element.checked;
     let row = element.closest('tr');
     let id = row.getAttribute("id");
     $.ajax({
@@ -55,17 +56,9 @@ function enable(checked, element) {
         contentType: "application/json",
         data: JSON.stringify(checked)
     }).done(function () {
-        row.disabled = checked;
-        successNoty(enableText(checked));
+        row.setAttribute('disabled',!checked);
+        successNoty(checked? "Запись активирована": "Запись деактивирована");
     }).fail(function () {
         element.checked = !checked;
     });
-}
-
-function enableText(checked) {
-    if (checked) {
-        return "Запись активирована";
-    } else {
-        return "Запись деактивирована";
-    }
 }
