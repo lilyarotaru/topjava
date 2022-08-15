@@ -1,15 +1,17 @@
 package ru.javawebinar.topjava.web.meal;
 
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.lang.Nullable;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.to.MealTo;
+import ru.javawebinar.topjava.util.ValidationUtil;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.List;
 
@@ -32,10 +34,16 @@ public class MealUIController extends AbstractMealController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.NO_CONTENT)
-    public void create(@RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTime,
-                       @RequestParam String description,
-                       @RequestParam int calories) {
-        super.create(new Meal(null, dateTime, description, calories));
+    public ResponseEntity<String> createOrUpdate(@Valid MealTo mealTo, BindingResult result) {
+        if (result.hasErrors()) {
+            return ValidationUtil.responseError(result);
+        }
+        if (mealTo.isNew()) {
+            super.create(mealTo);
+        } else {
+            super.update(mealTo, mealTo.getId());
+        }
+        return ResponseEntity.ok().build();
     }
 
     @Override
@@ -46,5 +54,11 @@ public class MealUIController extends AbstractMealController {
             @RequestParam @Nullable LocalDate endDate,
             @RequestParam @Nullable LocalTime endTime) {
         return super.getBetween(startDate, startTime, endDate, endTime);
+    }
+
+    @Override
+    @GetMapping("/{id}")
+    public Meal get(@PathVariable int id) {
+        return super.get(id);
     }
 }
