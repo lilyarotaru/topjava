@@ -1,27 +1,40 @@
 package ru.javawebinar.topjava.util;
 
 
+import org.springframework.context.support.ReloadableResourceBundleMessageSource;
 import org.springframework.core.NestedExceptionUtils;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
-import org.springframework.validation.BindingResult;
 import ru.javawebinar.topjava.HasId;
 import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.validation.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 public class ValidationUtil {
 
     private static final Validator validator;
+    private static final ReloadableResourceBundleMessageSource bundleMessageSource;
+    public static final Map<String, String> validationMessages = new HashMap();
 
     static {
         //  From Javadoc: implementations are thread-safe and instances are typically cached and reused.
         ValidatorFactory factory = Validation.buildDefaultValidatorFactory();
         //  From Javadoc: implementations of this interface must be thread-safe
         validator = factory.getValidator();
+
+        bundleMessageSource = new ReloadableResourceBundleMessageSource();
+        bundleMessageSource.setBasename("org/hibernate/validator/ValidationMessages");
+        bundleMessageSource.setDefaultEncoding("UTF-8");
+        validationMessages.put("NotBlank", bundleMessageSource.getMessage("javax.validation.constraints.NotBlank.message", null, Locale.getDefault()));
+
+        //how add min and max to msg? cause new Object[]{"2","120"} doesn't work
+        //can load more messages and use it in tests
+        validationMessages.put("Size", bundleMessageSource.getMessage("javax.validation.constraints.Size.message", null, Locale.getDefault()));
+
     }
 
     private ValidationUtil() {
@@ -75,13 +88,5 @@ public class ValidationUtil {
     public static Throwable getRootCause(@NonNull Throwable t) {
         Throwable rootCause = NestedExceptionUtils.getRootCause(t);
         return rootCause != null ? rootCause : t;
-    }
-
-    public static ResponseEntity<String> getErrorResponse(BindingResult result) {
-        return ResponseEntity.unprocessableEntity().body(
-                result.getFieldErrors().stream()
-                        .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
-                        .collect(Collectors.joining("<br>"))
-        );
     }
 }

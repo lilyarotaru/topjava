@@ -2,6 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.junit.jupiter.api.Assumptions;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.MessageSource;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
@@ -16,6 +17,7 @@ import ru.javawebinar.topjava.ActiveDbProfileResolver;
 import ru.javawebinar.topjava.Profiles;
 
 import javax.annotation.PostConstruct;
+import java.util.Locale;
 
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
@@ -35,6 +37,9 @@ public abstract class AbstractControllerTest {
 
     @Autowired
     public Environment env;
+
+    @Autowired
+    private MessageSource messageSource;
 
     static {
         CHARACTER_ENCODING_FILTER.setEncoding("UTF-8");
@@ -61,5 +66,9 @@ public abstract class AbstractControllerTest {
 
     protected ResultActions perform(MockHttpServletRequestBuilder builder) throws Exception {
         return mockMvc.perform(builder);
+    }
+
+    protected String getMessageError(String key) {
+        return messageSource.getMessage(key, null, Locale.getDefault());
     }
 }

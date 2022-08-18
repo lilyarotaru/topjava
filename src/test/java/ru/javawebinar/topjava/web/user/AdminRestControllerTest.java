@@ -3,21 +3,28 @@ package ru.javawebinar.topjava.web.user;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
-import ru.javawebinar.topjava.UserTestData;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.service.UserService;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 import ru.javawebinar.topjava.web.AbstractControllerTest;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import java.util.Locale;
+
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.*;
+import static ru.javawebinar.topjava.util.ValidationUtil.validationMessages;
+import static ru.javawebinar.topjava.util.exception.ErrorType.DATA_ERROR;
+import static ru.javawebinar.topjava.util.exception.ErrorType.VALIDATION_ERROR;
+import static ru.javawebinar.topjava.web.ExceptionInfoHandler.DUPLICATE_EMAIL;
 
 class AdminRestControllerTest extends AbstractControllerTest {
 
@@ -110,6 +117,75 @@ class AdminRestControllerTest extends AbstractControllerTest {
         newUser.setId(newId);
         USER_MATCHER.assertMatch(created, newUser);
         USER_MATCHER.assertMatch(userService.get(newId), newUser);
+    }
+
+    @Test
+    void createNotValid() throws Exception {
+        User newUser = getNew();
+        MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .locale(Locale.getDefault())
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(newUser, "")))    //password must be not blank
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        String jsonResponse = result.getResponse().getContentAsString();
+        assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
+        assertTrue(jsonResponse.contains(validationMessages.get("NotBlank")));
+    }
+
+    @Test
+    void updateNotValid() throws Exception {
+        User updated = getUpdated();
+        updated.setName("");
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .locale(Locale.getDefault())
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(updated, "")))    //password and name must be not blank
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        String jsonResponse = result.getResponse().getContentAsString();
+        assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
+        assertTrue(jsonResponse.contains(validationMessages.get("NotBlank")));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void createDuplicateEmail() throws Exception {
+        User newUser = getNew();
+        newUser.setEmail(guest.getEmail());
+        MvcResult result = perform(MockMvcRequestBuilders.post(REST_URL)
+                .contentType(MediaType.APPLICATION_JSON)
+                .locale(Locale.getDefault())
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(newUser, newUser.getPassword())))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        String jsonResponse = result.getResponse().getContentAsString();
+        assertTrue(jsonResponse.contains(DATA_ERROR.name()));
+        assertTrue(jsonResponse.contains(getMessageError(DUPLICATE_EMAIL)));
+    }
+
+    @Test
+    @Transactional(propagation = Propagation.NEVER)
+    void updateDuplicateEmail() throws Exception {
+        User updated = getUpdated();
+        updated.setEmail(admin.getEmail());
+        MvcResult result = perform(MockMvcRequestBuilders.put(REST_URL + USER_ID)
+                .contentType(MediaType.APPLICATION_JSON)
+                .locale(Locale.getDefault())
+                .with(userHttpBasic(admin))
+                .content(jsonWithPassword(updated, updated.getPassword())))
+                .andDo(print())
+                .andExpect(status().isUnprocessableEntity())
+                .andReturn();
+        String jsonResponse = result.getResponse().getContentAsString();
+        assertTrue(jsonResponse.contains(DATA_ERROR.name()));
+        assertTrue(jsonResponse.contains(getMessageError(DUPLICATE_EMAIL)));
     }
 
     @Test
