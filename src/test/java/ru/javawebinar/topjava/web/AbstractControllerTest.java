@@ -2,7 +2,7 @@ package ru.javawebinar.topjava.web;
 
 import org.junit.jupiter.api.Assumptions;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.env.Environment;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit.jupiter.web.SpringJUnitWebConfig;
@@ -15,10 +15,15 @@ import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.filter.CharacterEncodingFilter;
 import ru.javawebinar.topjava.ActiveDbProfileResolver;
 import ru.javawebinar.topjava.Profiles;
+import ru.javawebinar.topjava.util.ValidationUtil;
 
 import javax.annotation.PostConstruct;
-import java.util.Locale;
+import javax.validation.ConstraintViolation;
+import javax.validation.ConstraintViolationException;
+import java.util.Collections;
+import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 
 
@@ -39,7 +44,7 @@ public abstract class AbstractControllerTest {
     public Environment env;
 
     @Autowired
-    private MessageSource messageSource;
+    private MessageSourceAccessor messageSourceAccessor;
 
     static {
         CHARACTER_ENCODING_FILTER.setEncoding("UTF-8");
@@ -68,7 +73,18 @@ public abstract class AbstractControllerTest {
         return mockMvc.perform(builder);
     }
 
-    protected String getMessageError(String key) {
-        return messageSource.getMessage(key, null, Locale.getDefault());
+    protected String getMessage(String key) {
+        return messageSourceAccessor.getMessage(key);
+    }
+
+    protected <T> void checkValidationMessages(T obj, String jsonResponse) {
+        try {
+            ValidationUtil.validate(obj);
+        } catch (ConstraintViolationException e) {
+            List<String> messages = e.getConstraintViolations().stream().map(ConstraintViolation::getMessage).toList();
+            for (String message : messages) {
+                assertTrue(jsonResponse.contains(message));
+            }
+        }
     }
 }

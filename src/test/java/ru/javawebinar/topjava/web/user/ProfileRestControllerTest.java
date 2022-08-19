@@ -23,8 +23,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static ru.javawebinar.topjava.TestUtil.userHttpBasic;
 import static ru.javawebinar.topjava.UserTestData.*;
-import static ru.javawebinar.topjava.util.ValidationUtil.validationMessages;
-import static ru.javawebinar.topjava.util.exception.ErrorType.DATA_ERROR;
 import static ru.javawebinar.topjava.util.exception.ErrorType.VALIDATION_ERROR;
 import static ru.javawebinar.topjava.web.ExceptionInfoHandler.DUPLICATE_EMAIL;
 import static ru.javawebinar.topjava.web.user.ProfileRestController.REST_URL;
@@ -86,7 +84,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        assertTrue(jsonResponse.contains(validationMessages.get("NotBlank")));
+        checkValidationMessages(newTo, jsonResponse);
     }
 
     @Test
@@ -101,8 +99,8 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
-        assertTrue(jsonResponse.contains(DATA_ERROR.name()));
-        assertTrue(jsonResponse.contains(getMessageError(DUPLICATE_EMAIL)));
+        assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
+        assertTrue(jsonResponse.contains(getMessage(DUPLICATE_EMAIL)));
     }
 
     @Test
@@ -129,7 +127,7 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        assertTrue(jsonResponse.contains(validationMessages.get("NotBlank")));
+        checkValidationMessages(updatedTo, jsonResponse);
     }
 
     @Test
@@ -144,8 +142,8 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
-        assertTrue(jsonResponse.contains(DATA_ERROR.name()));
-        assertTrue(jsonResponse.contains(getMessageError(DUPLICATE_EMAIL)));
+        assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
+        assertTrue(jsonResponse.contains(getMessage(DUPLICATE_EMAIL)));
     }
 
     @Test

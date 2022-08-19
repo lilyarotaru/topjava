@@ -28,8 +28,6 @@ import static ru.javawebinar.topjava.UserTestData.USER_ID;
 import static ru.javawebinar.topjava.UserTestData.user;
 import static ru.javawebinar.topjava.util.MealsUtil.createTo;
 import static ru.javawebinar.topjava.util.MealsUtil.getTos;
-import static ru.javawebinar.topjava.util.ValidationUtil.validationMessages;
-import static ru.javawebinar.topjava.util.exception.ErrorType.DATA_ERROR;
 import static ru.javawebinar.topjava.util.exception.ErrorType.VALIDATION_ERROR;
 import static ru.javawebinar.topjava.web.ExceptionInfoHandler.DUPLICATE_DATE_TIME_MEAL;
 
@@ -120,7 +118,7 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        assertTrue(jsonResponse.contains(validationMessages.get("NotBlank")));
+        checkValidationMessages(newMeal, jsonResponse);
     }
 
     @Test
@@ -137,7 +135,7 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        assertTrue(jsonResponse.contains(validationMessages.get("NotBlank")));
+        checkValidationMessages(updated, jsonResponse);
     }
 
     @Test
@@ -154,8 +152,8 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
-        assertTrue(jsonResponse.contains(DATA_ERROR.name()));
-        assertTrue(jsonResponse.contains(getMessageError(DUPLICATE_DATE_TIME_MEAL)));
+        assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
+        assertTrue(jsonResponse.contains(getMessage(DUPLICATE_DATE_TIME_MEAL)));
     }
 
     @Test
@@ -172,8 +170,8 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andExpect(status().isUnprocessableEntity())
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
-        assertTrue(jsonResponse.contains(DATA_ERROR.name()));
-        assertTrue(jsonResponse.contains(getMessageError(DUPLICATE_DATE_TIME_MEAL)));
+        assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
+        assertTrue(jsonResponse.contains(getMessage(DUPLICATE_DATE_TIME_MEAL)));
     }
 
     @Test

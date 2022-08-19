@@ -70,7 +70,20 @@
         <property name="fallbackToSystemLocale" value="false"/>
     </bean>
 
+    <bean id="messageSourceAccessor" class="org.springframework.context.support.MessageSourceAccessor">
+        <constructor-arg ref="messageSource"/>
+    </bean>
+
+    <bean  id= "localeResolver"  class= "org.springframework.web.servlet.i18n.SessionLocaleResolver" >
+    </bean>
+
+    <bean id="localeChangeInterceptor"
+          class="org.springframework.web.servlet.i18n.LocaleChangeInterceptor">
+        <property name="paramName" value="lang" />
+    </bean>
+
     <mvc:interceptors>
         <bean class="ru.javawebinar.topjava.web.interceptor.ModelInterceptor"/>
+        <ref bean="localeChangeInterceptor"/>
     </mvc:interceptors>
 </beans>

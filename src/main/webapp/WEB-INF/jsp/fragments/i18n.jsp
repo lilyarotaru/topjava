@@ -12,11 +12,7 @@
     <c:forEach var='key' items='<%=new String[]{"common.deleted", "common.saved", "common.enabled", "common.disabled", "common.errorStatus", "common.confirm"}%>'>
     i18n['${key}'] = '<spring:message code="${key}"/>';
     </c:forEach>
-    <c:forEach var='key' items='<%=new String[]{ErrorType.VALIDATION_ERROR.name(), ErrorType.DATA_NOT_FOUND.name(), ErrorType.DATA_ERROR.name(), ErrorType.APP_ERROR.name()}%>'>
-    i18n['${key}'] = '<spring:message code="${key}"/>';
+    <c:forEach var='error' items='<%=ErrorType.values()%>'>
+    i18n['${error.name()}'] = '<spring:message code="${error.name()}"/>';
     </c:forEach>
-<%--    <c:forEach var='error' items='<%=ErrorType.values()%>'>--%>
-<%--    const key = "${error.name().toString()}";--%>           //why this way doesn't work
-<%--    i18n['${key}'] = '<spring:message code="${key}"/>';--%>
-<%--    </c:forEach>--%>
 </script>

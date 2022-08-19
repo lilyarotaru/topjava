@@ -3,7 +3,7 @@ package ru.javawebinar.topjava.web;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.MessageSource;
+import org.springframework.context.support.MessageSourceAccessor;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -23,8 +23,6 @@ import ru.javawebinar.topjava.util.exception.IllegalRequestDataException;
 import ru.javawebinar.topjava.util.exception.NotFoundException;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Locale;
-import java.util.stream.Collectors;
 
 import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 
@@ -32,11 +30,11 @@ import static ru.javawebinar.topjava.util.exception.ErrorType.*;
 @Order(Ordered.HIGHEST_PRECEDENCE + 5)
 public class ExceptionInfoHandler {
     private static Logger log = LoggerFactory.getLogger(ExceptionInfoHandler.class);
-    public final static String DUPLICATE_EMAIL = "users_unique_email_idx";
-    public final static String DUPLICATE_DATE_TIME_MEAL = "meals_unique_user_datetime_idx";
+    public static final String DUPLICATE_EMAIL = "users_unique_email_idx";
+    public static final String DUPLICATE_DATE_TIME_MEAL = "meals_unique_user_datetime_idx";
 
     @Autowired
-    private MessageSource messageSource;
+    private MessageSourceAccessor messageSourceAccessor;
 
     //  http://stackoverflow.com/a/22358422/548473
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)
@@ -52,11 +50,11 @@ public class ExceptionInfoHandler {
         String rootMessage = rootCause.getMessage();
         log.error(DATA_ERROR + " at request " + req.getRequestURL(), rootCause);
         if (rootMessage.contains(DUPLICATE_EMAIL)) {
-            return new ErrorInfo(req.getRequestURL(), DATA_ERROR, getMessageError(DUPLICATE_EMAIL));
+            return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, getMessage(DUPLICATE_EMAIL));
         } else if (rootMessage.contains(DUPLICATE_DATE_TIME_MEAL)) {
-            return new ErrorInfo(req.getRequestURL(), DATA_ERROR, getMessageError(DUPLICATE_DATE_TIME_MEAL));
+            return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, getMessage(DUPLICATE_DATE_TIME_MEAL));
         }
-        return new ErrorInfo(req.getRequestURL(), DATA_ERROR, rootMessage);
+        return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, rootMessage);
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
@@ -69,9 +67,9 @@ public class ExceptionInfoHandler {
     @ExceptionHandler(BindException.class)
     public ErrorInfo bindingError(HttpServletRequest req, BindException e) {
         BindingResult result = e.getBindingResult();
-        String message = result.getFieldErrors().stream()
+        String[] message = result.getFieldErrors().stream()
                 .map(fe -> String.format("[%s] %s", fe.getField(), fe.getDefaultMessage()))
-                .collect(Collectors.joining("<br>"));
+                .toArray(String[]::new);
         log.warn("{} at request  {}: {}", VALIDATION_ERROR, req.getRequestURL(), message);
         return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, message);
     }
@@ -90,10 +88,10 @@ public class ExceptionInfoHandler {
         } else {
             log.warn("{} at request  {}: {}", errorType, req.getRequestURL(), rootCause.toString());
         }
-        return new ErrorInfo(req.getRequestURL(), errorType, rootCause.toString());
+        return new ErrorInfo(req.getRequestURL(), errorType, rootCause.getMessage());
     }
 
-    public String getMessageError(String key) {
-        return messageSource.getMessage(key, null, Locale.getDefault());
+    public String getMessage(String key) {
+        return messageSourceAccessor.getMessage(key);
     }
 }
