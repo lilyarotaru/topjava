@@ -74,7 +74,7 @@
         <constructor-arg ref="messageSource"/>
     </bean>
 
-    <bean  id= "localeResolver"  class= "org.springframework.web.servlet.i18n.SessionLocaleResolver" >
+    <bean  id= "localeResolver"  class= "org.springframework.web.servlet.i18n.CookieLocaleResolver" >
     </bean>
 
     <bean id="localeChangeInterceptor"

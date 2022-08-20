@@ -76,15 +76,4 @@ public abstract class AbstractControllerTest {
     protected String getMessage(String key) {
         return messageSourceAccessor.getMessage(key);
     }
-
-    protected <T> void checkValidationMessages(T obj, String jsonResponse) {
-        try {
-            ValidationUtil.validate(obj);
-        } catch (ConstraintViolationException e) {
-            List<String> messages = e.getConstraintViolations().stream().map(ConstraintViolation::getMessage).toList();
-            for (String message : messages) {
-                assertTrue(jsonResponse.contains(message));
-            }
-        }
-    }
 }

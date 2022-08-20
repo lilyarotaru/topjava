@@ -84,7 +84,6 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        checkValidationMessages(newTo, jsonResponse);
     }
 
     @Test
@@ -127,7 +126,6 @@ class ProfileRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        checkValidationMessages(updatedTo, jsonResponse);
     }
 
     @Test

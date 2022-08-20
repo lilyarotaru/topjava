@@ -118,7 +118,6 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        checkValidationMessages(newMeal, jsonResponse);
     }
 
     @Test
@@ -135,7 +134,6 @@ class MealRestControllerTest extends AbstractControllerTest {
                 .andReturn();
         String jsonResponse = result.getResponse().getContentAsString();
         assertTrue(jsonResponse.contains(VALIDATION_ERROR.name()));
-        checkValidationMessages(updated, jsonResponse);
     }
 
     @Test

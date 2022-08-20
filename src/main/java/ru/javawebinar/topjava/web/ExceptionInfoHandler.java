@@ -54,7 +54,7 @@ public class ExceptionInfoHandler {
         } else if (rootMessage.contains(DUPLICATE_DATE_TIME_MEAL)) {
             return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, getMessage(DUPLICATE_DATE_TIME_MEAL));
         }
-        return new ErrorInfo(req.getRequestURL(), VALIDATION_ERROR, rootMessage);
+        return new ErrorInfo(req.getRequestURL(), DATA_ERROR, rootMessage);
     }
 
     @ResponseStatus(HttpStatus.UNPROCESSABLE_ENTITY)  // 422
