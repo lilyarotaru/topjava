@@ -33,9 +33,6 @@ public abstract class AbstractControllerTest {
 
     private static final CharacterEncodingFilter CHARACTER_ENCODING_FILTER = new CharacterEncodingFilter();
 
-    @Autowired
-    public Environment env;
-
     static {
         CHARACTER_ENCODING_FILTER.setEncoding("UTF-8");
         CHARACTER_ENCODING_FILTER.setForceEncoding(true);
@@ -44,9 +41,12 @@ public abstract class AbstractControllerTest {
     private MockMvc mockMvc;
 
     @Autowired
+    private Environment env;
+
+    @Autowired
     private WebApplicationContext webApplicationContext;
 
-    public void assumeDataJpa() {
+    protected void assumeDataJpa() {
         Assumptions.assumeTrue(env.acceptsProfiles(org.springframework.core.env.Profiles.of(Profiles.DATAJPA)), "DATA-JPA only");
     }
 

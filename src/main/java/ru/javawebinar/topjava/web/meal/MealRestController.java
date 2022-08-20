@@ -56,6 +56,7 @@ public class MealRestController extends AbstractMealController {
         return ResponseEntity.created(uriOfNewResource).body(created);
     }
 
+    @Override
     @GetMapping("/filter")
     public List<MealTo> getBetween(
             @RequestParam @Nullable LocalDate startDate,
